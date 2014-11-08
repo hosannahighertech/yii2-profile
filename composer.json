@@ -1,7 +1,6 @@
 { 
     "name": "hosannahighertech/yii2-profile", 
     "type": "yii2-module",
-
     "description": "Yii2 User Account Management",
     "keywords": ["yii2", "user", "profile", "yii2-user", "yii"],
     "license": "Hosanna License We will soon post it here",
@@ -18,17 +17,15 @@
             "email": "support@hosannahighertech.co.tz"
         }
     ],
-
-    // package dependencies
     "require": {
         "yiisoft/yii2": "*", 
         "yiisoft/yii2-jui": "*"
     },
-
-    // class autoloading specs
     "autoload": {
         "psr-4": {
             "hosanna\\profile\\": ""
         }
     }
 }
+
+

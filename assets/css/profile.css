@@ -1,0 +1,12 @@
+
+
+.profile-view #profile-box #user-avatar
+{
+    padding:2px;
+    border:solid grey 1px;
+}
+
+.profile-view #profile-box
+{ 
+    max-width:180px;
+}

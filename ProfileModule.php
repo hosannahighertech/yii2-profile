@@ -15,7 +15,7 @@ class ProfileModule extends \yii\base\Module
     public function init()
     {
         parent::init();        
-        Yii::setAlias('profile', dirname(dirname(__DIR__)).'/modules/profile/'); 
+        Yii::setAlias('profile', '@vendor/hosannahighertech/yii2-profile'); 
         
         $this->registerAssets();
     }
@@ -24,7 +24,7 @@ class ProfileModule extends \yii\base\Module
     {
         $view = Yii::$app->view; 
         Yii::$app->assetManager->forceCopy = true;
-        $this->bundleInstance = \app\modules\profile\ProfileAsset::register($view); 
+        $this->bundleInstance = ProfileAsset::register($view); 
         $this->bundleInstance->publish(Yii::$app->assetManager);
   	}
 }

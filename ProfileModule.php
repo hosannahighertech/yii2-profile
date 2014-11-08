@@ -6,7 +6,7 @@ use Yii;
 class ProfileModule extends \yii\base\Module
 {
     public $defaultRoute="profile/index";
-    public $controllerNamespace = 'app\modules\profile\controllers';
+    public $controllerNamespace = 'hosanna\profile\controllers';
     public $defaultRole = 'member';
     public $isActivation = true;
     public $profiles = [];

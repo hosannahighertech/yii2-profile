@@ -3,10 +3,10 @@
 namespace hosanna\profile\controllers;
 
 use Yii;
-use app\modules\profile\ProfileModule;
-use app\modules\profile\models\Profile;
-use app\modules\profile\models\ProfileSearch;
-use app\modules\profile\models\LoginForm;
+use hosanna\profile\ProfileModule;
+use hosanna\profile\models\Profile;
+use hosanna\profile\models\ProfileSearch;
+use hosanna\profile\models\LoginForm;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;

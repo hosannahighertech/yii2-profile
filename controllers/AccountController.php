@@ -85,23 +85,26 @@ class AccountController extends Controller
         $module = ProfileModule::getInstance();
         
         if ($model->load(Yii::$app->request->post()) && $model->save()) { 
+            //set uploaded file to Model Attribute
+            $model->avatarFile = UploadedFile::getInstance($model, 'avatarFile');
             $this->uploadAvatar($model);
             
             //set default user role 
             $auth = Yii::$app->authManager; 
             $defaultRole = $auth->getRole($module->defaultRole);
-            $auth->assign($defaultRole, $model->id);
+            if($defaultRole!==null) //role exists
+                $auth->assign($defaultRole, $model->id);
             
             //if activate is false in config activate user manually else send mail with activation link
             if(!$module->isActivation)
             {
                 $model->setAttribute('isactive', 1);
-                $model->save(false);
+                $model->save(true, ['isactive']);
             }
             else
             {
                 $model->setScenario('recover');
-                $model->save();
+                $model->save(true, ['isactive']); //validate only this field
                 //send mail
                 $url = \Yii::$app->urlManager->createAbsoluteUrl(['/profile/account/activate', 'key'=>base64_encode($model->recoverycode)], 'http');
                 $url='<a href="'.$url.'">'.\Yii::t('app', 'Here').'</a>';
@@ -419,12 +422,9 @@ class AccountController extends Controller
 
     
     protected function uploadAvatar($model)
-    {
+    {         
         if($model->avatarFile!=null)
-        {
-            $oldPath = \Yii::$app->params['avatarPath'].$model->id.'_avatar.png';
-            @unlink($oldPath);
-            
+        {            
             $randName = $model->id.'_avatar';  
             $avatarPath = \Yii::$app->params['avatarPath'] .$randName . '.' . $model->avatarFile->extension;
             //remove all avatars associated with this model

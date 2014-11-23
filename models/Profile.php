@@ -33,7 +33,7 @@ use Yii;
  * @property Courses[] $cs
  * @property CourseTeachers[] $courseTeachers
  * @property Downloads[] $downloads
- * @property BbiiMember $bbiiMember
+ * @property YBoardMember $bbiiMember
  */
 class Profile extends \yii\db\ActiveRecord
 {
@@ -85,7 +85,7 @@ class Profile extends \yii\db\ActiveRecord
             [['email'], 'unique'],
             
             [['avatarFile'], 'required','when' => function($model) {return $model->avatarFile != null;}],
-            [['avatarFile'], 'file', 'extensions' => 'png','maxSize'=>1024*150], //'extensions'=>'jpg, gif, png'
+            [['avatarFile'], 'file', 'extensions' => 'png,jpg','maxSize'=>1024*150], //'extensions'=>'jpg, gif, png'
             //recover password
             [['email', 'username'], 'required', 'on'=>'recover'],
             [['timezone'], 'string', 'max' => 80],
@@ -196,9 +196,9 @@ class Profile extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getBbiiMember()
+    public function getYBoardMember()
     {
-        return $this->hasOne(BbiiMember::className(), ['id' => 'id']);
+        return $this->hasOne(YBoardMember::className(), ['id' => 'id']);
     }
     
     /**
@@ -218,7 +218,7 @@ class Profile extends \yii\db\ActiveRecord
     }
     
     public function beforeSave($insert)
-    {
+    { 
         if(parent::beforeSave($insert))
         {
            if($this->isNewRecord)

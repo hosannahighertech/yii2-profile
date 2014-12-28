@@ -77,7 +77,7 @@ Dialog::begin([
 ?>
 
     <div id="form-contents">    
-        <p id='form-error'><?= \Yii::t('app', '{h}Enter Valid Email or username you registered with{ch}', ['h'=>'<h4>', 'ch'=>'</h4>']); ?></p>
+        <p id='form-error'><?= \Yii::t('app', '{h}Enter Valid Email or username you registered with{ch}', ['h'=>'<b>', 'ch'=>'</b>']); ?></p>
        <p> <input type="text" id="email" class="form-control" /></p>
        
         <div id="pbar" class="progress progress-striped active">
@@ -145,11 +145,12 @@ Dialog::begin([
             <?= Html::submitButton('Login', ['class' => 'btn btn-primary', 'name' => 'login-button']) ?>
         </div>
     </div>
-
+ 
     <?php ActiveForm::end(); ?>
 
     <div class="col-lg-offset-1" style="color:#999;">
-        Forgot Password? Want to Resend Activation code? Please <a href="#" onclick="$('#reset-pass-dialog').dialog('open'); ">click here</a> to recover and be able to login again.
+        New here? <?= Html::a('register', ['create']) ?> Forgot Password? Want to Resend Activation code? 
+        <br>Please <a href="#" onclick="$('#reset-pass-dialog').dialog('open'); ">click here</a> to recover and be able to login again.
         <p>Your Other Profile Details remains the same</p>
          
     </div>

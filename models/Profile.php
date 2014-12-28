@@ -226,23 +226,20 @@ class Profile extends \yii\db\ActiveRecord
                $this->password = $this->generatePasswd($this->formPassword); //set form password to db password
                $this->regtime = time();
                $this->valtoken = hash('sha256', time().$this->email);
-           }
-           else
+           } 
+           if($this->scenario=='update')
            {
-               if($this->scenario=='update')
+               if($this->formPassword!='')
                {
-                   if($this->formPassword!='')
-                   {
-                        $this->password = $this->generatePasswd($this->formPassword); //change to New Password
-                   }
+                    $this->password = $this->generatePasswd($this->formPassword); //change to New Password
                }
-               else if($this->scenario=='recover')
-               {
-                    $this->codeexpiry = time()+(24*3*60*60);
-                    $this->recoverycode = \Yii::$app->security->generateRandomString();
-               }
-               
            }
+           
+           if($this->scenario=='recover')
+           {
+                $this->codeexpiry = time()+(24*3*60*60);
+                $this->recoverycode = Yii::$app->security->generateRandomString();
+           } 
            return true;
         } 
         return false;

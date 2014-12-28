@@ -13,6 +13,7 @@ use yii\filters\VerbFilter;
 use yii\web\UploadedFile; 
 use yii\helpers\BaseFileHelper;
 use yii\filters\AccessControl;
+use yii\helpers\Html;
 
 /**
  * ProfileController implements the CRUD actions for Profile model.
@@ -99,18 +100,18 @@ class AccountController extends Controller
             if(!$module->isActivation)
             {
                 $model->setAttribute('isactive', 1);
-                $model->save(true, ['isactive']);
+                $model->save();
             }
             else
             {
-                $model->setScenario('recover');
-                $model->save(true, ['isactive']); //validate only this field
+                $model->scenario = 'recover';
+                $model->save(false);
                 //send mail
-                $url = \Yii::$app->urlManager->createAbsoluteUrl(['/profile/account/activate', 'key'=>base64_encode($model->recoverycode)], 'http');
-                $url='<a href="'.$url.'">'.\Yii::t('app', 'Here').'</a>';
+                $url = Yii::$app->urlManager->createAbsoluteUrl(['/profile/account/activate', 'key'=>base64_encode($model->recoverycode)], 'http');
+                $url = Html::a(Yii::t('app', 'Here'), $url);
                 
-                $subject = \Yii::t('app', 'Activating Account for {email}', ['email'=>$model->email]);
-                $msg = \Yii::t('app', 'Dear {name}, Thank you for registering with us. Please click {link} to Activate your Account. Link expires in 24 Hours', ['name'=>$model->fname, 'link'=>$url]);
+                $subject = Yii::t('app', 'Activating Account for {email}', ['email'=>$model->email]);
+                $msg = Yii::t('app', 'Dear {name}, Thank you for registering with us. Please click {link} to Activate your Account. Link expires in 24 Hours', ['name'=>$model->fname, 'link'=>$url]);
                try
                {
                     $this->sendMail($model->email, $subject, $msg);
@@ -156,7 +157,7 @@ class AccountController extends Controller
     
     public function actionLogin()
     {
-        if (!\Yii::$app->user->isGuest) {
+        if (!Yii::$app->user->isGuest) {
             return $this->goHome();
         }
 
@@ -183,11 +184,11 @@ class AccountController extends Controller
      */
     public function actionAvatars()
     {
-        if(!\Yii::$app->request->isAjax)
-            \Yii::$app->end();
+        if(!Yii::$app->request->isAjax)
+            Yii::$app->end();
         
-        $avPath = \Yii::getAlias('@webroot').'/uploads/avatars/'; 
-        $files = \yii\helpers\FileHelper::findFiles(\Yii::getAlias('@webroot').'/uploads/avatar/system', ['only'=>['*.png', '*.gif', '*.jpg']]);
+        $avPath = Yii::getAlias('@webroot').'/uploads/avatars/'; 
+        $files = \yii\helpers\FileHelper::findFiles(Yii::getAlias('@webroot').'/uploads/avatar/system', ['only'=>['*.png', '*.gif', '*.jpg']]);
         $data = [];
         foreach($files as $file)
         {
@@ -197,7 +198,7 @@ class AccountController extends Controller
         //add yours
         //search all with id name
         $myAvatar = "";
-        foreach (glob(\Yii::$app->params['avatarPath'].Yii::$app->user->identity->id."_avatar.*") as $filename) {
+        foreach (glob(Yii::$app->params['avatarPath'].Yii::$app->user->identity->id."_avatar.*") as $filename) {
             $myAvatar = basename($filename); 
         } 
         $data[] ='<img data-image-name="'.$myAvatar.'" class="avatar-img btn btn-info" style="width:100px; padding:1px;" src="'. Yii::$app->request->baseUrl.'/'.Yii::$app->params['avatarPath'].$myAvatar.'?'.time().'" />&nbsp;';//add time to force refresh on client image
@@ -212,8 +213,8 @@ class AccountController extends Controller
      */
     public function actionUpdateAvatar($id, $avatar)
     {
-        if(!\Yii::$app->request->isAjax)
-            \Yii::$app->end();
+        if(!Yii::$app->request->isAjax)
+            Yii::$app->end();
             
         $model = $this->findModel($id); 
         $model->setAttribute('avatar', $avatar);
@@ -227,8 +228,8 @@ class AccountController extends Controller
      */
     public function actionChangeMyAvatar($id)
     {
-        if(!\Yii::$app->request->isAjax)
-            \Yii::$app->end();
+        if(!Yii::$app->request->isAjax)
+            Yii::$app->end();
         
         $model = $this->findModel($id);
         $model->avatarFile =  UploadedFile::getInstanceByName('file'); 
@@ -239,8 +240,8 @@ class AccountController extends Controller
     //recover password
     public function actionResendActivation($email)
     { 
-        if(!\Yii::$app->request->isAjax)
-            \Yii::$app->end();
+        if(!Yii::$app->request->isAjax)
+            Yii::$app->end();
             
         $user = Profile::find()
             ->where(['email'=>$email])
@@ -251,27 +252,27 @@ class AccountController extends Controller
             $user->setScenario('recover');
             $user->save();
             //send mail
-            $url = \Yii::$app->urlManager->createAbsoluteUrl(['/profile/account/activate', 'key'=>base64_encode($user->recoverycode)], 'http');
-            $url='<a href="'.$url.'">'.\Yii::t('app', 'Here').'</a>';
+            $url = Yii::$app->urlManager->createAbsoluteUrl(['/profile/account/activate', 'key'=>base64_encode($user->recoverycode)], 'http');
+            $url = Html::a(Yii::t('app', 'Here'), $url);
             
-            $subject = \Yii::t('app', 'Activating Account for {email}', ['email'=>$user->email]);
-            $msg = \Yii::t('app', 'Dear {name}, Thank you for registering with us. We are resending this link at your request. Please click {link} to Activate your Account. Link expires in 24 Hours', ['name'=>$user->fname, 'link'=>$url]);
+            $subject = Yii::t('app', 'Activating Account for {email}', ['email'=>$user->email]);
+            $msg = Yii::t('app', 'Dear {name}, Thank you for registering with us. We are resending this link at your request. Please click {link} to Activate your Account. Link expires in 24 Hours', ['name'=>$user->fname, 'link'=>$url]);
            try
            {
                 $this->sendMail($user->email, $subject, $msg);
            }
            catch(\Exception $e)
            {
-                echo json_encode(['success'=>false, 'msg'=>\Yii::t('app', 'Could not send Activation Mail. Check your Internet connection and try again.')]);
+                echo json_encode(['success'=>false, 'msg'=>Yii::t('app', 'Could not send Activation Mail. Check your Internet connection and try again.')]);
                 exit();
            }
             
-            echo json_encode(['success'=>true, 'msg'=>\Yii::t('app', 'Succesfully sent Activation code. Please Check your Email for Instructions.')]);
+            echo json_encode(['success'=>true, 'msg'=>Yii::t('app', 'Succesfully sent Activation code. Please Check your Email for Instructions.')]);
             exit();
         }
         else
         {
-            echo json_encode(['success'=>false, 'msg'=>\Yii::t('app', 'Invalid username or email')]);
+            echo json_encode(['success'=>false, 'msg'=>Yii::t('app', 'Invalid username or email')]);
             exit();
         }
     }
@@ -279,8 +280,8 @@ class AccountController extends Controller
     //recover password
     public function actionForgot($email)
     { 
-        if(!\Yii::$app->request->isAjax)
-            \Yii::$app->end();
+        if(!Yii::$app->request->isAjax)
+            Yii::$app->end();
             
         $user = Profile::find()
             ->where(['email'=>$email])
@@ -291,27 +292,27 @@ class AccountController extends Controller
             $user->setScenario('recover');
             $user->save();
             //send mail
-            $url = \Yii::$app->urlManager->createAbsoluteUrl(['/profile/account/recover-password', 'key'=>base64_encode($user->recoverycode), 'password'=>hash('sha256', $user->password.$user->codeexpiry)], 'http');
-            $url='<a href="'.$url.'">'.\Yii::t('app', 'Here').'</a>';
+            $url = Yii::$app->urlManager->createAbsoluteUrl(['/profile/account/recover-password', 'key'=>base64_encode($user->recoverycode), 'password'=>hash('sha256', $user->password.$user->codeexpiry)], 'http');
+            $url='<a href="'.$url.'">'.Yii::t('app', 'Here').'</a>';
             
-            $subject = \Yii::t('app', 'Reseting Password for {email}', ['email'=>$user->email]);
-            $msg = \Yii::t('app', 'Dear {name}, someone applied to change your account password associated with this email. If it is not you, you can safely ignore this message. If it was you, please click {link} to reset your password. Upon logging in, please change your password. The link expires in 24 hours', ['name'=>$user->fname, 'link'=>$url]);
+            $subject = Yii::t('app', 'Reseting Password for {email}', ['email'=>$user->email]);
+            $msg = Yii::t('app', 'Dear {name}, someone applied to change your account password associated with this email. If it is not you, you can safely ignore this message. If it was you, please click {link} to reset your password. Upon logging in, please change your password. The link expires in 24 hours', ['name'=>$user->fname, 'link'=>$url]);
            try
            {
                 $this->sendMail($user->email, $subject, $msg);
            }
            catch(\Exception $e)
            {
-                echo json_encode(['success'=>false, 'msg'=>\Yii::t('app', 'Could not send Recovery E-Mail. Check your Internet connection and try again.')]);
+                echo json_encode(['success'=>false, 'msg'=>Yii::t('app', 'Could not send Recovery E-Mail. Check your Internet connection and try again.')]);
                 exit();
            }
             
-            echo json_encode(['success'=>true, 'msg'=>\Yii::t('app', 'Succesfully Reset Your Account. Please Check your Email for Instructions.')]);
+            echo json_encode(['success'=>true, 'msg'=>Yii::t('app', 'Succesfully Reset Your Account. Please Check your Email for Instructions.')]);
             exit();
         }
         else
         {
-            echo json_encode(['success'=>false, 'msg'=>\Yii::t('app', 'Invalid username or email')]);
+            echo json_encode(['success'=>false, 'msg'=>Yii::t('app', 'Invalid username or email')]);
             exit();
         }
     }
@@ -319,14 +320,14 @@ class AccountController extends Controller
     //recover pass from forgot passwd
     public function actionRecoverPassword($key, $password)
     {
-        if (!\Yii::$app->user->isGuest) {
+        if (!Yii::$app->user->isGuest) {
             return $this->goHome();
         }
         if($this->isValidBase64($key))
         {            
             //clear any flash message
-            \Yii::$app->session->removeFlash('success');
-            \Yii::$app->session->removeFlash('error');
+            Yii::$app->session->removeFlash('success');
+            Yii::$app->session->removeFlash('error');
             
             $user = Profile::find()
                 ->where(['recoverycode'=>base64_decode($key)])
@@ -344,25 +345,25 @@ class AccountController extends Controller
                 }
                 else
                 {
-                    \Yii::$app->session->setFlash('error', \Yii::t('app', 'Password Recovery failed with code 1432. Please Try again'));
+                    Yii::$app->session->setFlash('error', Yii::t('app', 'Password Recovery failed with code 1432. Please Try again'));
                 }
             }
             else
             {
-                \Yii::$app->session->setFlash('error', \Yii::t('app', 'Recovery code have expired or Invalid. Please click "forgot password below to reset"'));
+                Yii::$app->session->setFlash('error', Yii::t('app', 'Recovery code have expired or Invalid. Please click "forgot password below to reset"'));
             }
         }
         else
         {
-            \Yii::$app->session->setFlash('error', \Yii::t('app', 'Password Recovery failed with code 1332. Please Try again'));
+            Yii::$app->session->setFlash('error', Yii::t('app', 'Password Recovery failed with code 1332. Please Try again'));
         }
-        if(\Yii::$app->user->isGuest)    
+        if(Yii::$app->user->isGuest)    
             $this->redirect(['account/login']);
         else
         {
             //generate new password
-            $tempPass = substr(\Yii::$app->security->generateRandomString(), 8);
-            \Yii::$app->session->setFlash('recovery', \Yii::t('app', 'This login was temporary, please update your pasword. Use Old Password: {oldp}', ['oldp'=>$tempPass]));
+            $tempPass = substr(Yii::$app->security->generateRandomString(), 8);
+            Yii::$app->session->setFlash('recovery', Yii::t('app', 'This login was temporary, please update your pasword. Use Old Password: {oldp}', ['oldp'=>$tempPass]));
             $user->setAttribute('password', $user->generatePasswd($tempPass));
             $user->save(false);    
             $this->redirect(['account/update', 'id'=>$user->id]);
@@ -372,14 +373,14 @@ class AccountController extends Controller
     //activate password
     public function actionActivate($key)
     {
-        if (!\Yii::$app->user->isGuest) {
+        if (!Yii::$app->user->isGuest) {
             return $this->goHome();
         }
         if($this->isValidBase64($key))
         {            
             //clear any flash message
-            \Yii::$app->session->removeFlash('success');
-            \Yii::$app->session->removeFlash('error');
+            Yii::$app->session->removeFlash('success');
+            Yii::$app->session->removeFlash('error');
             
             $user = Profile::find()->where(['recoverycode'=>base64_decode($key)])->one();
             if($user!==null && $user->codeexpiry>time())
@@ -388,21 +389,21 @@ class AccountController extends Controller
                 $user->setAttributes(['isactive'=>1, 'recoverycode'=>'']);
                 if($user->save())
                 {
-                    \Yii::$app->session->setFlash('success', \Yii::t('app', 'Your Account have been activated. Please login'));
+                    Yii::$app->session->setFlash('success', Yii::t('app', 'Your Account have been activated. Please login'));
                 }
                 else
                 {
-                    \Yii::$app->session->setFlash('error', \Yii::t('app', 'Activation failed with code 1432. Please Try again'));
+                    Yii::$app->session->setFlash('error', Yii::t('app', 'Activation failed with code 1432. Please Try again'));
                 }
             }
             else
             {
-                \Yii::$app->session->setFlash('error', \Yii::t('app', 'Activation code have expired or Invalid. Please click "forgot password below to resend"'));
+                Yii::$app->session->setFlash('error', Yii::t('app', 'Activation code have expired or Invalid. Please click "forgot password below to resend"'));
             }
         }
         else
         {
-            \Yii::$app->session->setFlash('error', \Yii::t('app', 'Activation failed with code 1332. Please Try again'));
+            Yii::$app->session->setFlash('error', Yii::t('app', 'Activation failed with code 1332. Please Try again'));
         }
         $this->redirect(['account/login']);
     }
@@ -426,7 +427,7 @@ class AccountController extends Controller
         if($model->avatarFile!=null)
         {            
             $randName = $model->id.'_avatar';  
-            $avatarPath = \Yii::$app->params['avatarPath'] .$randName . '.' . $model->avatarFile->extension;
+            $avatarPath = Yii::$app->params['avatarPath'] .$randName . '.' . $model->avatarFile->extension;
             //remove all avatars associated with this model
             $this->deleteAvatarFiles($model->id);
             $model->avatarFile->saveAs($avatarPath);
@@ -447,8 +448,8 @@ class AccountController extends Controller
         if($width<150 && $height<150)
                 return; //no resizing necessary
         //resize file
-        $width=\Yii::$app->params['avatarWidth'];
-        $height=\Yii::$app->params['avatarHeight'];
+        $width=Yii::$app->params['avatarWidth'];
+        $height=Yii::$app->params['avatarHeight'];
         $image=Yii::$app->image->load($avatarPath);            
         $image->resize($width,$height, \Yii\image\drivers\Image::HEIGHT);        
         $image->crop($width, $height);
@@ -457,7 +458,7 @@ class AccountController extends Controller
     
     protected function deleteAvatarFiles($id=0)
     { 
-        foreach (glob(\Yii::$app->params['avatarPath'].$id."_avatar.*") as $filename) {
+        foreach (glob(Yii::$app->params['avatarPath'].$id."_avatar.*") as $filename) {
             @unlink($filename); 
         } 
     }

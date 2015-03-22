@@ -144,7 +144,8 @@ class AccountController extends Controller
         if ($model->load(Yii::$app->request->post()) && $model->save()) 
         {            
             $model->avatarFile = UploadedFile::getInstance($model, 'avatarFile');
-            $this->uploadAvatar($model);
+            if($model->avatarFile!=null)
+                $this->uploadAvatar($model);
             
             return $this->redirect(['view', 'id' => $model->id]);
             

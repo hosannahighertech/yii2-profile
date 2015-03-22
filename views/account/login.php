@@ -95,7 +95,7 @@ Dialog::begin([
         ?>
         
         </p>
-        <p><?= Html::checkbox('activation', true, ['id'=>'resendActivation']).' '.\Yii::t('app', 'Only Resend Activation Code') ?></p>
+        <p><?= Html::checkbox('activation', false, ['id'=>'resendActivation']).' '.\Yii::t('app', 'Only Resend Activation Code') ?></p>
     </div>
 <?php Dialog::end(); ?>
 
